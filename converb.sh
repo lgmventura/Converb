@@ -1,5 +1,10 @@
 # Convolve MP3 audio with wav or mp3 stereo impulse signals.
 
+#!/bin/bash
+cd "$(dirname "$0")"
+
+printf "$2"
+
 ffmpeg -i "$1" metaAudio.wav
 #if [$# = 4]; then
 python3 converb.py metaAudio.wav "$2" "$3" metaAudio.wav
