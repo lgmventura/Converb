@@ -20,12 +20,27 @@ def doubleStereoConvolution(wv1, wv2, wv3, pad0s = False):
     
     #srate = wv1[0]
     
-    wv1_left = wv1[1][:,0]
-    wv1_right = wv1[1][:,1]
+    # Separing channels to work with them:
+    # check if input wave to be convolved is stereo:
+    if np.ndim(wv1[1]) == 2:
+        wv1_left = wv1[1][:,0]
+        wv1_right = wv1[1][:,1]
+    else: # if mono, we need to copy the mono channel for the maths below
+        wv1_left = wv1[1]
+        wv1_right = wv1[1]
     
+    # the next wave files are the pulse response files, they must be stereo.
+    # if they aren't, use stereoConvolution.py instead.
+    if np.ndim(wv2[1]) == 1 or np.ndim(wv3[1]) == 1:
+        raise ValueError("The impulse response files must be stereo for" +
+                         " using doubleStereoConvolution! If you want to use" +
+                         " mono impulse responses, use stereoConvolution instead.")
+    
+    # stereo pulse response from the left side:
     wv2_left = wv2[1][:,0]
     wv2_right = wv2[1][:,1]
     
+    # stereo pulse response from the left side:
     wv3_left = wv3[1][:,0]
     wv3_right = wv3[1][:,1]
     
