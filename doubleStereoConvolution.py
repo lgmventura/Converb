@@ -11,12 +11,13 @@ from scipy.signal import fftconvolve
 from scipy.io.wavfile import read as wvrd
 from scipy.io.wavfile import write as wvwr
 
-def doubleStereoConvolution(wv1, wv2, wv3, pad0s = False):
+def doubleStereoConvolution(wv1, wv2, wv3, pad0s = False, norm=0.5):
     # This matricial approach is more realistic, since you can give a stereo impulse for the left side and another
     # stereo impulse for the right side. On the left side, the left channel of the impulse should be dryer than wet
     # and the right channel impulse should be wetter than dry.
     # Both stereo impulses must be the same length. If not, there is an option to pad zeros (if pad0s == True) or trim
     # (if pad0s == False).
+    # norm is the amount to normalise the output audio. 1 should be 0dB, but is clipping, so using 0.5 for safety. ToDo: check this
     
     #srate = wv1[0]
     
@@ -58,11 +59,13 @@ def doubleStereoConvolution(wv1, wv2, wv3, pad0s = False):
         wv3_right = wv3_right + np.zeros(imp_len - np.shape(wv3_right)[0])
         
     
+    # Convolution:
     wv_conv_left = fftconvolve(wv1_left, wv2_left) + fftconvolve(wv1_right, wv2_right)
     wv_conv_right = fftconvolve(wv1_right, wv3_right) + fftconvolve(wv1_left, wv3_left)
     
-    wv_conv_left = wv_conv_left/np.max(wv_conv_left)
-    wv_conv_right = wv_conv_right/np.max(wv_conv_right)
+    # Normalisation:
+    wv_conv_left = norm*wv_conv_left/np.max(wv_conv_left)
+    wv_conv_right = norm*wv_conv_right/np.max(wv_conv_right)
     
     wv_conv = np.vstack((wv_conv_left, wv_conv_right)).T
     
